@@ -4,7 +4,6 @@ const readline = require("node:readline");
 const path = require("path");
 
 const fileName = "text.txt";
-const folderName = "02-write-file";
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
 inputText("Введите текст: \n");
@@ -19,7 +18,7 @@ function inputText(question) {
       rl.close();
       return;
     } else {
-      fs.appendFile(path.join("./", folderName, fileName), str + "\n", (err) => {
+      fs.appendFile(path.join(__dirname, fileName), str + "\n", (err) => {
         if (err) {
           console.error(err);
           return;
