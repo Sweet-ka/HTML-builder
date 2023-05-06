@@ -1,9 +1,10 @@
-const fs = require("fs");
-const path = require("path");
+const { read } = require("../shared");
 
 const fileName = "text.txt";
 
-fs.readFile(path.join(__dirname, fileName), "utf8", function (error, data) {
-  if (error) throw error;
-  console.log(data);
-});
+readFile();
+
+async function readFile() {
+  const data = await read(__dirname, "", fileName);
+  console.log("aaa", data);
+}
