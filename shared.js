@@ -57,6 +57,19 @@ async function copyExt(root, distFolder, folderName, fileName, ext) {
   fileOpened.close();
 }
 
+async function copyDir(root, folderName, copy, recursive) {
+  await createDir(root, copy, recursive);
+  const innerFiles = await getFiles(root, folderName);
+
+  for (let file of innerFiles) {
+    const statsFile = await getStats(root, folderName, file);
+    if (statsFile.isFile()) {
+      await copyFiles(path.join(root, folderName, file), path.join(root, copy, file));
+    } else {
+    }
+  }
+}
+
 module.exports = {
   read: read,
   apend: apend,
@@ -66,4 +79,5 @@ module.exports = {
   createDir: createDir,
   copyFiles: copyFiles,
   copyExt: copyExt,
+  copyDir: copyDir,
 };
