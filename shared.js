@@ -31,4 +31,16 @@ module.exports = {
       if (error) throw error;
     });
   },
+
+  createDir: async function (root, dirName, recursive) {
+    return fs.mkdir(path.join(root, dirName), { recursive: recursive }, (error) => {
+      if (error) throw error;
+    });
+  },
+
+  copyFiles: async function (file, newFile, template) {
+    await fs.copyFile(file, newFile, template, (error) => {
+      if (error) throw error;
+    });
+  },
 };

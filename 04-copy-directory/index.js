@@ -1,13 +1,12 @@
-const fs = require("fs/promises");
 const path = require("path");
-const { getStats, getFiles } = require("../shared");
+const { getStats, getFiles, createDir, copyFiles } = require("../shared");
 const folderName = "files";
 const copyFolderName = "files-copy";
 
 copyDir(folderName, copyFolderName);
 
 async function copyDir(dir, copy) {
-  await createDir(copy);
+  await createDir(__dirname, copy, true);
   const innerFiles = await getFiles(__dirname, dir);
 
   for (let file of innerFiles) {
@@ -17,22 +16,4 @@ async function copyDir(dir, copy) {
     } else {
     }
   }
-}
-
-async function createDir(copyDir) {
-  const pathDir = path.join(__dirname, copyDir);
-  return fs.mkdir(pathDir, { recursive: true }, (err) => {
-    if (err) {
-      console.error(err);
-    }
-  });
-}
-
-async function copyFiles(file, newFile) {
-  await fs.copyFile(file, newFile, undefined, (err) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-  });
 }
