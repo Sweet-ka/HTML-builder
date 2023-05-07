@@ -7,4 +7,10 @@ module.exports = {
       if (error) throw error;
     });
   },
+
+  apend: async function (root, dirName, fileName, str) {
+    fs.appendFile(path.join(root, dirName, fileName), str + "\n", (error) => {
+      if (error) throw error;
+    });
+  },
 };

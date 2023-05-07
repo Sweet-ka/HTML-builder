@@ -1,8 +1,5 @@
-const fs = require("fs");
-const readline = require("node:readline");
-
-const path = require("path");
-
+const readline = require("readline");
+const { apend } = require("../shared");
 const fileName = "text.txt";
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
@@ -13,17 +10,12 @@ rl.on("close", () => {
 });
 
 function inputText(question) {
-  rl.question(question, (str) => {
+  rl.question(question, async (str) => {
     if (str === "exit") {
       rl.close();
       return;
     } else {
-      fs.appendFile(path.join(__dirname, fileName), str + "\n", (err) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-      });
+      await apend(__dirname, "", fileName, str);
       inputText("Введите еще текст: \n");
     }
   });
