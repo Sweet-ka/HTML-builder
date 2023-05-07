@@ -1,4 +1,3 @@
-const fs = require("fs/promises");
 const path = require("path");
 const { getFiles, getStats } = require("../shared");
 const folderName = "secret-folder";
