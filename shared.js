@@ -20,8 +20,14 @@ module.exports = {
     });
   },
 
-  getStats: async function (root, dirName, file) {
-    return fs.stat(path.join(root, dirName, file), (error) => {
+  getStats: async function (root, dirName, fileName) {
+    return fs.stat(path.join(root, dirName, fileName), (error) => {
+      if (error) throw error;
+    });
+  },
+
+  createFile: async function (root, dirName, fileName, flag, template) {
+    return fs.open(path.join(root, dirName, fileName), flag, template, (error) => {
       if (error) throw error;
     });
   },
