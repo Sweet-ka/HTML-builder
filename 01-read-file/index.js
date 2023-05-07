@@ -6,5 +6,5 @@ readFile();
 
 async function readFile() {
   const data = await read(__dirname, "", fileName);
-  console.log("aaa", data);
+  console.log(data);
 }
