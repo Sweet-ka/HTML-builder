@@ -45,6 +45,74 @@ async function createDir(root, dirName, recursive) {
   });
 }
 
+async function remoweFile(root, dirName, fileName) {
+  return fs.unlink(path.join(root, dirName, fileName), (error) => {
+    if (error) throw error;
+  });
+}
+
+async function removeDir(root, folderName) {
+  try {
+    await fs.access(path.join(root, folderName), undefined);
+  } catch {
+    return;
+  }
+  await fs.rmdir(path.join(root, folderName), {}, (error) => {
+    if (error) throw error;
+  });
+}
+
+async function clearDir(root, folderName) {
+  try {
+    await fs.access(path.join(root, folderName), undefined);
+  } catch {
+    return;
+  }
+
+  await rmFiles(root, folderName);
+  await rmFolders(root, folderName);
+
+  async function rmFiles(root, folderName) {
+    let innerFiles = await getFiles(root, folderName);
+    for (let file of innerFiles) {
+      const statsFile = await getStats(root, folderName, file);
+      if (statsFile.isFile()) {
+        await remoweFile(root, folderName, file);
+      } else {
+        await rmFiles(root, path.join(folderName, file));
+      }
+    }
+  }
+
+  async function rmFolders(root, folderName) {
+    let innerRootFilders = await getFiles(root, folderName);
+    if (innerRootFilders.length === 0) {
+      return;
+    } else {
+      await rmInnerFolders(root, folderName);
+      await rmFolders(root, folderName);
+    }
+
+    async function rmInnerFolders(root, folderName) {
+      let innerFolders = await getFiles(root, folderName);
+      for (let folder of innerFolders) {
+        let checkEmpty = await getFiles(root, path.join(folderName, folder));
+        if (checkEmpty.length === 0) {
+          await removeDir(root, path.join(folderName, folder));
+        } else {
+          await rmInnerFolders(root, path.join(folderName, folder));
+        }
+      }
+    }
+  }
+}
+
+async function clearFile(root, folderName, fileName) {
+  return fs.truncate(path.join(root, folderName, fileName), undefined, (error) => {
+    if (error) throw error;
+  });
+}
+
 async function copyFiles(file, newFile, template) {
   await fs.copyFile(file, newFile, template, (error) => {
     if (error) throw error;
@@ -52,7 +120,9 @@ async function copyFiles(file, newFile, template) {
 }
 
 async function copyExt(root, distFolder, folderName, fileName, ext) {
-  const fileOpened = await createFile(root, distFolder, fileName, "w");
+  let fileOpened = await createFile(root, distFolder, fileName, "w");
+  await clearFile(root, distFolder, fileName);
+
   const innerFiles = await getFiles(root, folderName);
 
   for (let file of innerFiles) {
@@ -89,4 +159,5 @@ module.exports = {
   copyFiles: copyFiles,
   copyExt: copyExt,
   copyDir: copyDir,
+  clearDir: clearDir,
 };
