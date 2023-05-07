@@ -1,35 +1,19 @@
 const fs = require("fs/promises");
 const path = require("path");
+const { getFiles, getStats } = require("../shared");
 const folderName = "secret-folder";
 
 getInfo();
 
 async function getInfo() {
-  const res = await getFiles();
-  res.forEach(async (file) => {
-    const statsFile = await getStats(file);
+  const files = await getFiles(__dirname, folderName);
+  files.forEach(async (file) => {
+    const statsFile = await getStats(__dirname, folderName, file);
     if (statsFile.isFile()) {
-      console.log(
-        `${path.basename(file, path.extname(file))} - ${path.extname(file).substring(1)} - ${statsFile.size / 1000}kB`
-      );
-    }
-  });
-}
-
-async function getFiles() {
-  return fs.readdir(path.join(__dirname, folderName), (err) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-  });
-}
-
-async function getStats(file) {
-  return fs.stat(path.join(__dirname, folderName, file), (err) => {
-    if (err) {
-      console.error(err);
-      return;
+      const base = path.basename(file, path.extname(file));
+      const ext = path.extname(file).substring(1);
+      const size = statsFile.size / 1000;
+      console.log(`${base} - ${ext} - ${size}kB`);
     }
   });
 }

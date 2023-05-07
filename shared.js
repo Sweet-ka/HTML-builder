@@ -13,4 +13,16 @@ module.exports = {
       if (error) throw error;
     });
   },
+
+  getFiles: async function (root, dirName) {
+    return fs.readdir(path.join(root, dirName), (error) => {
+      if (error) throw error;
+    });
+  },
+
+  getStats: async function (root, dirName, file) {
+    return fs.stat(path.join(root, dirName, file), (error) => {
+      if (error) throw error;
+    });
+  },
 };
