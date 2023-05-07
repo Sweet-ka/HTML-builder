@@ -66,6 +66,7 @@ async function copyDir(root, folderName, copy, recursive) {
     if (statsFile.isFile()) {
       await copyFiles(path.join(root, folderName, file), path.join(root, copy, file));
     } else {
+      await copyDir(root, path.join(folderName, file), path.join(copy, file), true);
     }
   }
 }
