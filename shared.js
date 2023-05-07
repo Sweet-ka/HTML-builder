@@ -1,9 +1,17 @@
+const fsStream = require("fs");
 const fs = require("fs/promises");
 const path = require("path");
 
 async function read(root, dirName, fileName) {
-  return fs.readFile(path.join(root, dirName, fileName), "utf8", function (error) {
-    if (error) throw error;
+  return new Promise((resolve) => {
+    const stream = fsStream.createReadStream(path.join(root, dirName, fileName), {
+      encoding: "utf8",
+      autoClose: true,
+      emitClose: true,
+    });
+    stream.on("data", (data) => {
+      resolve(data);
+    });
   });
 }
 
