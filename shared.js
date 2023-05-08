@@ -6,8 +6,6 @@ async function read(root, dirName, fileName) {
   return new Promise((resolve) => {
     const stream = fsStream.createReadStream(path.join(root, dirName, fileName), {
       encoding: "utf8",
-      autoClose: true,
-      emitClose: true,
     });
     stream.on("data", (data) => {
       resolve(data);
@@ -56,6 +54,18 @@ async function remove(root, folderName) {
   });
 }
 
+async function clearFile(root, folderName, fileName) {
+  try {
+    await fs.access(path.join(root, folderName, fileName), undefined);
+  } catch {
+    return;
+  }
+
+  await fs.truncate(path.join(root, folderName, fileName), undefined, (error) => {
+    if (error) throw error;
+  });
+}
+
 async function clearDir(root, folderName) {
   try {
     await fs.access(path.join(root, folderName), undefined);
@@ -75,19 +85,32 @@ async function copyFiles(file, newFile, template) {
   });
 }
 
-async function copyExt(root, distFolder, folderName, fileName, ext) {
-  let fileOpened = await createFile(root, distFolder, fileName, "w");
+async function onePipe(root, distFolder, folderName, fileName, file) {
+  return new Promise((res) => {
+    const from = fsStream.createReadStream(path.join(root, folderName, file), {
+      encoding: "utf8",
+    });
+    const to = fsStream.createWriteStream(path.join(root, distFolder, fileName), {
+      flags: "a",
+    });
+    from.pipe(to);
+    to.on("close", () => {
+      res();
+    });
+  });
+}
 
+async function pipe(root, distFolder, folderName, fileName, ext) {
+  await clearFile(root, distFolder, fileName);
   const innerFiles = await getFiles(root, folderName);
 
   for (let file of innerFiles) {
     const statsFile = await getStats(root, folderName, file);
+
     if (statsFile.isFile() && path.extname(file) === `.${ext}`) {
-      const data = await read(root, folderName, file);
-      await apend(root, distFolder, fileName, data);
+      await onePipe(root, distFolder, folderName, fileName, file);
     }
   }
-  fileOpened.close();
 }
 
 async function copyDir(root, folderName, copy, recursive) {
@@ -112,7 +135,7 @@ module.exports = {
   createFile: createFile,
   createDir: createDir,
   copyFiles: copyFiles,
-  copyExt: copyExt,
   copyDir: copyDir,
   clearDir: clearDir,
+  pipe: pipe,
 };
