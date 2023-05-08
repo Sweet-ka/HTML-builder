@@ -107,12 +107,6 @@ async function clearDir(root, folderName) {
   }
 }
 
-async function clearFile(root, folderName, fileName) {
-  return fs.truncate(path.join(root, folderName, fileName), undefined, (error) => {
-    if (error) throw error;
-  });
-}
-
 async function copyFiles(file, newFile, template) {
   await fs.copyFile(file, newFile, template, (error) => {
     if (error) throw error;
@@ -121,7 +115,6 @@ async function copyFiles(file, newFile, template) {
 
 async function copyExt(root, distFolder, folderName, fileName, ext) {
   let fileOpened = await createFile(root, distFolder, fileName, "w");
-  await clearFile(root, distFolder, fileName);
 
   const innerFiles = await getFiles(root, folderName);
 
