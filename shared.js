@@ -45,19 +45,13 @@ async function createDir(root, dirName, recursive) {
   });
 }
 
-async function remoweFile(root, dirName, fileName) {
-  return fs.unlink(path.join(root, dirName, fileName), (error) => {
-    if (error) throw error;
-  });
-}
-
-async function removeDir(root, folderName) {
+async function remove(root, folderName) {
   try {
     await fs.access(path.join(root, folderName), undefined);
   } catch {
     return;
   }
-  await fs.rmdir(path.join(root, folderName), {}, (error) => {
+  await fs.rmdir(path.join(root, folderName), { recursive: true }, (error) => {
     if (error) throw error;
   });
 }
@@ -69,41 +63,9 @@ async function clearDir(root, folderName) {
     return;
   }
 
-  await rmFiles(root, folderName);
-  await rmFolders(root, folderName);
-
-  async function rmFiles(root, folderName) {
-    let innerFiles = await getFiles(root, folderName);
-    for (let file of innerFiles) {
-      const statsFile = await getStats(root, folderName, file);
-      if (statsFile.isFile()) {
-        await remoweFile(root, folderName, file);
-      } else {
-        await rmFiles(root, path.join(folderName, file));
-      }
-    }
-  }
-
-  async function rmFolders(root, folderName) {
-    let innerRootFilders = await getFiles(root, folderName);
-    if (innerRootFilders.length === 0) {
-      return;
-    } else {
-      await rmInnerFolders(root, folderName);
-      await rmFolders(root, folderName);
-    }
-
-    async function rmInnerFolders(root, folderName) {
-      let innerFolders = await getFiles(root, folderName);
-      for (let folder of innerFolders) {
-        let checkEmpty = await getFiles(root, path.join(folderName, folder));
-        if (checkEmpty.length === 0) {
-          await removeDir(root, path.join(folderName, folder));
-        } else {
-          await rmInnerFolders(root, path.join(folderName, folder));
-        }
-      }
-    }
+  let innerFiles = await getFiles(root, folderName);
+  for (let file of innerFiles) {
+    await remove(root, path.join(folderName, file));
   }
 }
 
