@@ -11,8 +11,8 @@ async function getInfo() {
     if (statsFile.isFile()) {
       const base = path.basename(file, path.extname(file));
       const ext = path.extname(file).substring(1);
-      const size = statsFile.size / 1000;
-      console.log(`${base} - ${ext} - ${size}kB`);
+      const size = statsFile.size;
+      console.log(`${base} - ${ext} - ${size}B`);
     }
   });
 }
