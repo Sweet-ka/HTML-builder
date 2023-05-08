@@ -1,6 +1,6 @@
 const fs = require("fs/promises");
 const path = require("path");
-const { read, createDir, createFile, apend, copyExt, copyDir } = require("../shared");
+const { read, createDir, createFile, apend, copyExt, copyDir, clearDir } = require("../shared");
 const templateFileName = "template.html";
 const componentFolder = "components";
 const distFolder = "project-dist";
@@ -9,7 +9,7 @@ build();
 
 async function build() {
   let templateStr = await read(__dirname, "", templateFileName);
-  const regexp = new RegExp(/{{.*}}/g);
+  const regexp = new RegExp(/{{.*?}}/g);
   const articles = templateStr.match(regexp);
 
   for (let article of articles) {
@@ -24,5 +24,6 @@ async function build() {
   fileOpened.close();
 
   await copyExt(__dirname, distFolder, "styles", "style.css", "css");
+  await clearDir(__dirname, path.join(distFolder, "assets"));
   await copyDir(__dirname, "assets", path.join(distFolder, "assets"), true);
 }
