@@ -49,7 +49,7 @@ async function remove(root, folderName) {
   } catch {
     return;
   }
-  await fs.rmdir(path.join(root, folderName), { recursive: true }, (error) => {
+  await fs.rm(path.join(root, folderName), { recursive: true, force: true }, (error) => {
     if (error) throw error;
   });
 }
